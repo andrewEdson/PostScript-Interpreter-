@@ -35,6 +35,19 @@ from .string_ops import (
     getinterval_operation,
     putinterval_operation,
 )
+from .bit_bool_ops import (
+    eq_operation,
+    ne_operation,
+    ge_operation,
+    gt_operation,
+    le_operation,
+    lt_operation,
+    and_operation,
+    or_operation,
+    not_operation,
+    true_operation,
+    false_operation,
+)
 
 __all__ = [
     "add_operation",
@@ -66,4 +79,15 @@ __all__ = [
     "get_operation",
     "getinterval_operation",
     "putinterval_operation",
+    "eq_operation",
+    "ne_operation",
+    "ge_operation",
+    "gt_operation",
+    "le_operation",
+    "lt_operation",
+    "and_operation",
+    "or_operation",
+    "not_operation",
+    "true_operation",
+    "false_operation",
 ]

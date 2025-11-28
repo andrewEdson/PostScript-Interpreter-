@@ -80,6 +80,17 @@ def register_builtin_operations():
         get_operation,
         getinterval_operation,
         putinterval_operation,
+        eq_operation,
+        ne_operation,
+        ge_operation,
+        gt_operation,
+        le_operation,
+        lt_operation,
+        and_operation,
+        or_operation,
+        not_operation,
+        true_operation,
+        false_operation,
         exch_operation,
         pop_operation,
         copy_operation,
@@ -125,3 +136,16 @@ def register_builtin_operations():
     dict_stack[-1]["dup"] = dup_operation
     dict_stack[-1]["clear"] = clear_operation
     dict_stack[-1]["count"] = count_operation
+
+    # Bit and Boolean operations
+    dict_stack[-1]["eq"] = eq_operation
+    dict_stack[-1]["ne"] = ne_operation
+    dict_stack[-1]["ge"] = ge_operation
+    dict_stack[-1]["gt"] = gt_operation
+    dict_stack[-1]["le"] = le_operation
+    dict_stack[-1]["lt"] = lt_operation
+    dict_stack[-1]["and"] = and_operation
+    dict_stack[-1]["or"] = or_operation
+    dict_stack[-1]["not"] = not_operation
+    dict_stack[-1]["true"] = true_operation
+    dict_stack[-1]["false"] = false_operation
