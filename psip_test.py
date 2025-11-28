@@ -5,10 +5,18 @@ from psip import (
     process_number,
     process_input,
     op_stack,
+    dict_stack,
     add_operation,
     pop_print_operation,
     mul_operation,
     TypeMismatch,
+    process_code_block,
+    process_name_constant,
+    def_operation,
+    dict_operation,
+    begin_operation,
+    end_operation,
+    PSDict,
 )
 
 
@@ -91,6 +99,12 @@ class TestAddOperation:
         with pytest.raises(TypeMismatch):
             add_operation()
 
+    def test_add_operation_repl(self):
+        process_input("10")
+        process_input("20")
+        process_input("add")
+        assert op_stack[-1] == 30  # Check the stack directly instead
+
 
 class TestPopPrintOperation:
     """Tests for the pop and print operation."""
@@ -128,3 +142,292 @@ class TestMulOperation:
         op_stack.append(5)
         with pytest.raises(TypeMismatch):
             mul_operation()
+
+
+class TestCodeBlockParsing:
+    """Tests for code block parsing functions."""
+
+    def test_parse_code_block(self):
+        result = process_code_block("{ 1 2 add }")
+        assert result == ["1", "2", "add"]
+
+    def test_parse_invalid_code_block(self):
+        with pytest.raises(ParseFailed):
+            process_code_block("notacodeblock")
+
+
+class TestNameConstantParsing:
+    """Tests for name constant parsing functions."""
+
+    def test_parse_name_constant(self):
+        result = process_name_constant("/myvar")
+        assert result == "/myvar"
+
+    def test_parse_invalid_name_constant(self):
+        with pytest.raises(ParseFailed):
+            process_name_constant("myvar")
+
+
+class TestDefOperation:
+    """Tests for the def operation."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_def_operation_valid(self):
+        op_stack.append("/x")
+        op_stack.append(42)
+        def_operation()
+        assert "x" in dict_stack[-1]
+        assert dict_stack[-1]["x"] == 42
+        assert len(op_stack) == 0
+
+    def test_def_operation_insufficient_operands(self):
+        op_stack.append("/x")
+        with pytest.raises(TypeMismatch):
+            def_operation()
+
+    def test_def_operation_invalid_key(self):
+        op_stack.append("x")  # Missing leading /
+        op_stack.append(42)
+        with pytest.raises(TypeMismatch):
+            def_operation()
+
+    def test_def_operation_repl(self):
+        process_input("/x")
+        process_input("10")
+        process_input("def")
+        assert "x" in dict_stack[-1]
+        assert dict_stack[-1]["x"] == 10
+
+
+class TestDictOperation:
+    """Tests for the dict operation."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_dict_operation_creates_psdict(self):
+        dict_operation()
+        assert len(op_stack) == 1
+        assert isinstance(op_stack[-1], PSDict)
+
+    def test_dict_operation_repl(self):
+        process_input("dict")
+        assert len(op_stack) == 1
+        assert isinstance(op_stack[-1], PSDict)
+
+
+class TestBeginOperation:
+    """Tests for the begin operation."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_begin_operation_valid(self):
+        new_dict = PSDict()
+        op_stack.append(new_dict)
+        initial_dict_stack_len = len(dict_stack)
+        begin_operation()
+        assert len(dict_stack) == initial_dict_stack_len + 1
+        assert dict_stack[-1] is new_dict
+        assert len(op_stack) == 0
+
+    def test_begin_operation_insufficient_operands(self):
+        with pytest.raises(TypeMismatch):
+            begin_operation()
+
+    def test_begin_operation_invalid_operand(self):
+        op_stack.append(42)  # Not a dictionary
+        with pytest.raises(TypeMismatch):
+            begin_operation()
+
+    def test_begin_operation_repl(self):
+        process_input("/mydict")
+        process_input("dict")
+        process_input("def")
+        process_input("mydict")
+        initial_dict_stack_len = len(dict_stack)
+        process_input("begin")
+        assert len(dict_stack) == initial_dict_stack_len + 1
+
+
+class TestEndOperation:
+    """Tests for the end operation."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_end_operation_valid(self):
+        new_dict = PSDict()
+        dict_stack.append(new_dict)
+        initial_dict_stack_len = len(dict_stack)
+        end_operation()
+        assert len(dict_stack) == initial_dict_stack_len - 1
+
+    def test_end_operation_cannot_pop_last_dict(self):
+        with pytest.raises(TypeMismatch):
+            end_operation()
+
+    def test_end_operation_repl(self):
+        process_input("dict")
+        process_input("begin")
+        initial_dict_stack_len = len(dict_stack)
+        process_input("end")
+        assert len(dict_stack) == initial_dict_stack_len - 1
+
+
+class TestDictionaryScoping:
+    """Tests for dictionary scoping and nested dictionaries."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_variable_lookup_in_nested_dict(self):
+        # Define x in global scope
+        process_input("/x")
+        process_input("10")
+        process_input("def")
+
+        # Create and enter new dictionary
+        process_input("/mydict")
+        process_input("dict")
+        process_input("def")
+        process_input("mydict")
+        process_input("begin")
+
+        # x should still be accessible from parent scope
+        process_input("x")
+        assert op_stack[-1] == 10
+
+    def test_variable_shadowing_in_nested_dict(self):
+        # Define x in global scope
+        process_input("/x")
+        process_input("10")
+        process_input("def")
+
+        # Create and enter new dictionary
+        process_input("/mydict")
+        process_input("dict")
+        process_input("def")
+        process_input("mydict")
+        process_input("begin")
+
+        # Redefine x in nested scope
+        process_input("/x")
+        process_input("20")
+        process_input("def")
+
+        # Should get the shadowed value
+        process_input("x")
+        assert op_stack[-1] == 20
+
+        # Exit nested scope
+        process_input("end")
+
+        # Should get original value
+        op_stack.clear()
+        process_input("x")
+        assert op_stack[-1] == 10
+
+
+class TestComplexOperations:
+    """Tests for complex multi-step operations."""
+
+    def setup_method(self):
+        """Reset stacks before each test."""
+        op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        # Re-register built-in operations
+        dict_stack[-1]["add"] = add_operation
+        dict_stack[-1]["mul"] = mul_operation
+        dict_stack[-1]["="] = pop_print_operation
+        dict_stack[-1]["def"] = def_operation
+        dict_stack[-1]["dict"] = dict_operation
+        dict_stack[-1]["begin"] = begin_operation
+        dict_stack[-1]["end"] = end_operation
+
+    def test_define_and_use_variable(self):
+        process_input("/x")
+        process_input("5")
+        process_input("def")
+        process_input("x")
+        process_input("x")
+        process_input("mul")
+        assert op_stack[-1] == 25
+
+    def test_multiple_operations(self):
+        process_input("2")
+        process_input("3")
+        process_input("add")
+        process_input("4")
+        process_input("mul")
+        assert op_stack[-1] == 20
+
+    def test_define_multiple_variables(self):
+        process_input("/a")
+        process_input("10")
+        process_input("def")
+        process_input("/b")
+        process_input("20")
+        process_input("def")
+        process_input("a")
+        process_input("b")
+        process_input("add")
+        assert op_stack[-1] == 30

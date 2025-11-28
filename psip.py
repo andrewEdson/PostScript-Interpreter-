@@ -2,6 +2,8 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
+STATIC_SCOPING = False
+
 
 ##------PSDICT
 class PSDict:
@@ -9,12 +11,16 @@ class PSDict:
 
     def __init__(self):
         self.dict = {}
+        self.parent = None  # For static scoping
 
     def __setitem__(self, key, value):
         self.dict[key] = value
 
     def __getitem__(self, key):
         return self.dict[key]
+
+    def set_parent(self, parent):
+        self.parent = parent
 
     def __contains__(self, key):
         return key in self.dict
@@ -77,11 +83,21 @@ def process_name_constant(input):
         raise ParseFailed(f"Invalid name constant: {input}")
 
 
+# Code Block Parser
+def process_code_block(input):
+    logging.debug("input to process_code_block: %s", input)
+    if len(input) >= 2 and input.startswith("{") and input.endswith("}"):
+        return input[1:-1].strip().split()
+    else:
+        raise ParseFailed(f"Invalid code block: {input}")
+
+
 # Set of all parsers
 PARSERS = {
     process_boolean,
     process_number,
     process_name_constant,
+    process_code_block,
 }
 
 
@@ -152,11 +168,40 @@ def def_operation():
         raise TypeMismatch("Not enough operands on the stack for definition.")
 
 
+def dict_operation():
+    new_dict = PSDict()
+    if STATIC_SCOPING:
+        current_dict = dict_stack[-1]
+        new_dict.set_parent(current_dict)
+    op_stack.append(new_dict)
+
+
+def begin_operation():
+    if len(op_stack) >= 1:
+        dict_obj = op_stack.pop()
+        if isinstance(dict_obj, PSDict):
+            dict_stack.append(dict_obj)
+        else:
+            raise TypeMismatch("Operand must be a dictionary for begin operation.")
+    else:
+        raise TypeMismatch("Not enough operands on the stack for begin operation.")
+
+
+def end_operation():
+    if len(dict_stack) > 1:
+        dict_stack.pop()
+    else:
+        raise TypeMismatch("Cannot pop the last dictionary from the dictionary stack.")
+
+
 # Registering operations in the dictionary stack
 dict_stack[-1]["add"] = add_operation
 dict_stack[-1]["mul"] = mul_operation
 dict_stack[-1]["="] = pop_print_operation
 dict_stack[-1]["def"] = def_operation
+dict_stack[-1]["dict"] = dict_operation
+dict_stack[-1]["begin"] = begin_operation
+dict_stack[-1]["end"] = end_operation
 
 
 def lookup_in_dictionary(input):
@@ -166,10 +211,30 @@ def lookup_in_dictionary(input):
             value = current_dict[input]
             if callable(value):
                 value()  # Execute the operation
+            elif isinstance(value, list):
+                for item in value:
+                    process_input(item)
             else:
                 op_stack.append(value)
             return
-        raise ParseFailed(f"Could not find {input} in any dictionary.")
+    raise ParseFailed(f"Could not find {input} in any dictionary.")
+
+
+def lookup_in_dictionary_static(input):
+    current_dict = dict_stack[-1]
+    while current_dict is not None:
+        if input in current_dict:
+            value = current_dict[input]
+            if callable(value):
+                value()  # Execute the operation
+            elif isinstance(value, list):
+                for item in value:
+                    process_input(item)
+            else:
+                op_stack.append(value)
+            return
+        current_dict = current_dict.parent
+    raise ParseFailed(f"Could not find {input} in any dictionary.")
 
 
 def process_input(user_input):
@@ -179,7 +244,10 @@ def process_input(user_input):
     except ParseFailed as e:
         logging.debug(e)
         try:
-            lookup_in_dictionary(user_input)
+            if STATIC_SCOPING:
+                lookup_in_dictionary_static(user_input)
+            else:
+                lookup_in_dictionary(user_input)
         except Exception as e:
             logging.error(f"Could not process input '{user_input}': {e}")
 
@@ -188,11 +256,14 @@ def process_input(user_input):
 def repl():
     while True:
         user_input = input("REPL> ")
-        tokens = user_input.split()
-        for token in tokens:
-            if token.lower() == "quit":
-                return
-            process_input(token)
+        if user_input.strip().startswith("{"):
+            process_input(user_input)
+        else:
+            tokens = user_input.split()
+            for token in tokens:
+                if token.lower() == "quit":
+                    return
+                process_input(token)
         logging.debug(f"Operator Stack: {op_stack}")
 
 
