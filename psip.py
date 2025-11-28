@@ -68,9 +68,20 @@ def process_number(input):
         raise ParseFailed(f"Invalid number value: {input}")
 
 
+# Parse Varaibles
+def process_name_constant(input):
+    logging.debug("input to process_name_constant: %s", input)
+    if input.startswith("/"):
+        return input
+    else:
+        raise ParseFailed(f"Invalid name constant: {input}")
+
+
+# Set of all parsers
 PARSERS = {
     process_boolean,
     process_number,
+    process_name_constant,
 }
 
 
@@ -126,10 +137,26 @@ def pop_print_operation():
         raise TypeMismatch("Not enough operands on the stack for pop and print.")
 
 
+def def_operation():
+    if len(op_stack) >= 2:
+        value = op_stack.pop()
+        key = op_stack.pop()
+        if isinstance(key, str) and key.startswith("/"):
+            key = key[1:]  # Remove leading '/'
+            dict_stack[-1][key] = value
+        else:
+            op_stack.append(key)
+            op_stack.append(value)
+            raise TypeMismatch("Key must be a name constant starting with '/'.")
+    else:
+        raise TypeMismatch("Not enough operands on the stack for definition.")
+
+
 # Registering operations in the dictionary stack
 dict_stack[-1]["add"] = add_operation
 dict_stack[-1]["mul"] = mul_operation
 dict_stack[-1]["="] = pop_print_operation
+dict_stack[-1]["def"] = def_operation
 
 
 def lookup_in_dictionary(input):
