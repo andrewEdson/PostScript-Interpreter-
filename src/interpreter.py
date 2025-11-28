@@ -59,17 +59,60 @@ def register_builtin_operations():
     from src.operations import (
         add_operation,
         mul_operation,
+        div_operation,
+        sub_operation,
+        idiv_operation,
+        mod_operation,
+        abs_operation,
+        neg_operation,
+        ceil_operation,
+        floor_operation,
+        round_operation,
+        sqrt_operation,
         pop_print_operation,
         def_operation,
         dict_operation,
         begin_operation,
         end_operation,
+        length_operation,
+        maxlength_operation,
+        exch_operation,
+        pop_operation,
+        copy_operation,
+        dup_operation,
+        clear_operation,
+        count_operation,
     )
 
+    # Arithmetic operations
     dict_stack[-1]["add"] = add_operation
     dict_stack[-1]["mul"] = mul_operation
+    dict_stack[-1]["div"] = div_operation
+    dict_stack[-1]["sub"] = sub_operation
+    dict_stack[-1]["idiv"] = idiv_operation
+    dict_stack[-1]["mod"] = mod_operation
+    dict_stack[-1]["abs"] = abs_operation
+    dict_stack[-1]["neg"] = neg_operation
+    dict_stack[-1]["ceiling"] = ceil_operation
+    dict_stack[-1]["floor"] = floor_operation
+    dict_stack[-1]["round"] = round_operation
+    dict_stack[-1]["sqrt"] = sqrt_operation
+
+    # I/O operations
     dict_stack[-1]["="] = pop_print_operation
+
+    # Dictionary operations
     dict_stack[-1]["def"] = def_operation
     dict_stack[-1]["dict"] = dict_operation
     dict_stack[-1]["begin"] = begin_operation
     dict_stack[-1]["end"] = end_operation
+    dict_stack[-1]["length"] = length_operation
+    dict_stack[-1]["maxlength"] = maxlength_operation
+
+    # Stack operations
+    dict_stack[-1]["exch"] = exch_operation
+    dict_stack[-1]["pop"] = pop_operation
+    dict_stack[-1]["copy"] = copy_operation
+    dict_stack[-1]["dup"] = dup_operation
+    dict_stack[-1]["clear"] = clear_operation
+    dict_stack[-1]["count"] = count_operation

@@ -44,3 +44,27 @@ def end_operation():
         dict_stack.pop()
     else:
         raise TypeMismatch("Cannot pop the last dictionary from the dictionary stack.")
+
+
+def length_operation():
+    if len(op_stack) >= 1:
+        dict_obj = op_stack.pop()
+        if isinstance(dict_obj, PSDict):
+            length = len(dict_obj)
+            op_stack.append(length)
+        else:
+            raise TypeMismatch("Operand must be a dictionary for length operation.")
+    else:
+        raise TypeMismatch("Not enough operands on the stack for length operation.")
+
+
+def maxlength_operation():
+    if len(op_stack) >= 1:
+        dict_obj = op_stack.pop()
+        if isinstance(dict_obj, PSDict):
+            maxlength = dict_obj.max_length()
+            op_stack.append(maxlength)
+        else:
+            raise TypeMismatch("Operand must be a dictionary for maxlength operation.")
+    else:
+        raise TypeMismatch("Not enough operands on the stack for maxlength operation.")

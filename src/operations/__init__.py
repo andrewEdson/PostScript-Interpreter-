@@ -1,13 +1,59 @@
-from .arithmetic_ops import add_operation, mul_operation
-from .dict_ops import def_operation, dict_operation, begin_operation, end_operation
+from .arithmetic_ops import (
+    add_operation,
+    mul_operation,
+    div_operation,
+    sub_operation,
+    idiv_operation,
+    mod_operation,
+    abs_operation,
+    neg_operation,
+    ceil_operation,
+    floor_operation,
+    round_operation,
+    sqrt_operation,
+)
+from .dict_ops import (
+    def_operation,
+    dict_operation,
+    begin_operation,
+    end_operation,
+    length_operation,
+    maxlength_operation,
+)
 from .io_ops import pop_print_operation
+from .stack_ops import (
+    exch_operation,
+    pop_operation,
+    copy_operation,
+    dup_operation,
+    clear_operation,
+    count_operation,
+)
 
 __all__ = [
     "add_operation",
     "mul_operation",
+    "div_operation",
+    "sub_operation",
+    "idiv_operation",
+    "mod_operation",
+    "abs_operation",
+    "neg_operation",
+    "ceil_operation",
+    "floor_operation",
+    "round_operation",
+    "sqrt_operation",
     "def_operation",
     "dict_operation",
     "begin_operation",
     "end_operation",
+    "length_operation",
+    "maxlength_operation",
     "pop_print_operation",
+    "exch_operation",
+    "pop_operation",
+    "copy_operation",
+    "dup_operation",
+    "clear_operation",
+    "count_operation",
 ]

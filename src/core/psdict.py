@@ -20,6 +20,13 @@ class PSDict:
     def __contains__(self, key):
         return key in self.dict
 
+    def __len__(self):
+        return len(self.dict)
+
+    def max_length(self):
+        """Return the maximum length of the dictionary (PostScript default is 20)"""
+        return 20
+
     def __repr__(self):
         return f"PSDict({self.dict})"
 
