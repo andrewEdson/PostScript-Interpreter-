@@ -1,23 +1,22 @@
 import pytest
-from psip import (
+from src.parsers.parsers import (
     process_boolean,
-    ParseFailed,
     process_number,
-    process_input,
-    op_stack,
-    dict_stack,
-    add_operation,
-    pop_print_operation,
-    mul_operation,
-    TypeMismatch,
-    process_code_block,
     process_name_constant,
+    process_code_block,
+)
+from src.core.exceptions import ParseFailed, TypeMismatch
+from src.core.stacks import op_stack, dict_stack
+from src.core.psdict import PSDict
+from src.operations.arithmetic_ops import add_operation, mul_operation
+from src.operations.io_ops import pop_print_operation
+from src.operations.dict_ops import (
     def_operation,
     dict_operation,
     begin_operation,
     end_operation,
-    PSDict,
 )
+from src.interpreter import process_input, register_builtin_operations
 
 
 class TestBooleanParsing:
@@ -40,22 +39,16 @@ class TestNumberParsing:
     """Tests for number parsing functions."""
 
     def test_parse_integer(self):
-        from psip import process_number
-
         result = process_number("42")
         assert result == 42
         assert isinstance(result, int)
 
     def test_parse_float(self):
-        from psip import process_number
-
         result = process_number("3.14")
         assert result == 3.14
         assert isinstance(result, float)
 
     def test_parse_invalid(self):
-        from psip import ParseFailed
-
         with pytest.raises(ParseFailed):
             process_number("notanumber")
 
@@ -87,6 +80,9 @@ class TestAddOperation:
     def setup_method(self):
         """Reset the operand stack before each test."""
         op_stack.clear()
+        dict_stack.clear()
+        dict_stack.append(PSDict())
+        register_builtin_operations()
 
     def test_add_operation_valid(self):
         op_stack.append(10)
