@@ -46,12 +46,22 @@ def process_code_block(input):
         raise ParseFailed(f"Invalid code block: {input}")
 
 
+# String Parser
+def process_string(input):
+    logging.debug("input to process_string: %s", input)
+    if len(input) >= 2 and input.startswith("(") and input.endswith(")"):
+        return input[1:-1]
+    else:
+        raise ParseFailed(f"Invalid string value: {input}")
+
+
 # Set of all parsers
 PARSERS = {
     process_boolean,
     process_number,
     process_name_constant,
     process_code_block,
+    process_string,
 }
 
 

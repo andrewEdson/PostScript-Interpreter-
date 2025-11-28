@@ -74,8 +74,12 @@ def register_builtin_operations():
         dict_operation,
         begin_operation,
         end_operation,
-        length_operation,
+        dict_length_operation,
         maxlength_operation,
+        string_length_operation,
+        get_operation,
+        getinterval_operation,
+        putinterval_operation,
         exch_operation,
         pop_operation,
         copy_operation,
@@ -106,8 +110,13 @@ def register_builtin_operations():
     dict_stack[-1]["dict"] = dict_operation
     dict_stack[-1]["begin"] = begin_operation
     dict_stack[-1]["end"] = end_operation
-    dict_stack[-1]["length"] = length_operation
     dict_stack[-1]["maxlength"] = maxlength_operation
+
+    # String operations
+    dict_stack[-1]["length"] = string_length_operation
+    dict_stack[-1]["get"] = get_operation
+    dict_stack[-1]["getinterval"] = getinterval_operation
+    dict_stack[-1]["putinterval"] = putinterval_operation
 
     # Stack operations
     dict_stack[-1]["exch"] = exch_operation

@@ -17,7 +17,7 @@ from .dict_ops import (
     dict_operation,
     begin_operation,
     end_operation,
-    length_operation,
+    length_operation as dict_length_operation,
     maxlength_operation,
 )
 from .io_ops import pop_print_operation
@@ -28,6 +28,12 @@ from .stack_ops import (
     dup_operation,
     clear_operation,
     count_operation,
+)
+from .string_ops import (
+    length_operation as string_length_operation,
+    get_operation,
+    getinterval_operation,
+    putinterval_operation,
 )
 
 __all__ = [
@@ -47,7 +53,7 @@ __all__ = [
     "dict_operation",
     "begin_operation",
     "end_operation",
-    "length_operation",
+    "dict_length_operation",
     "maxlength_operation",
     "pop_print_operation",
     "exch_operation",
@@ -56,4 +62,8 @@ __all__ = [
     "dup_operation",
     "clear_operation",
     "count_operation",
+    "string_length_operation",
+    "get_operation",
+    "getinterval_operation",
+    "putinterval_operation",
 ]
