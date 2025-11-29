@@ -70,6 +70,8 @@ def register_builtin_operations():
         round_operation,
         sqrt_operation,
         pop_print_operation,
+        string_print_operation,
+        pop_print_postscript_rep_operation,
         def_operation,
         dict_operation,
         begin_operation,
@@ -94,6 +96,7 @@ def register_builtin_operations():
         if_operation,
         ifelse_operation,
         repeat_operation,
+        for_operation,
         exch_operation,
         pop_operation,
         copy_operation,
@@ -118,6 +121,8 @@ def register_builtin_operations():
 
     # I/O operations
     dict_stack[-1]["="] = pop_print_operation
+    dict_stack[-1]["print"] = string_print_operation
+    dict_stack[-1]["=="] = pop_print_postscript_rep_operation
 
     # Dictionary operations
     dict_stack[-1]["def"] = def_operation
@@ -157,3 +162,4 @@ def register_builtin_operations():
     dict_stack[-1]["if"] = if_operation
     dict_stack[-1]["ifelse"] = ifelse_operation
     dict_stack[-1]["repeat"] = repeat_operation
+    dict_stack[-1]["for"] = for_operation

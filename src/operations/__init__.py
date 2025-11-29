@@ -20,7 +20,11 @@ from .dict_ops import (
     length_operation as dict_length_operation,
     maxlength_operation,
 )
-from .io_ops import pop_print_operation
+from .io_ops import (
+    pop_print_operation,
+    string_print_operation,
+    pop_print_postscript_rep_operation,
+)
 from .stack_ops import (
     exch_operation,
     pop_operation,
@@ -52,6 +56,7 @@ from .flow_ops import (
     if_operation,
     ifelse_operation,
     repeat_operation,
+    for_operation,
 )
 
 __all__ = [
@@ -74,6 +79,8 @@ __all__ = [
     "dict_length_operation",
     "maxlength_operation",
     "pop_print_operation",
+    "string_print_operation",
+    "pop_print_postscript_rep_operation",
     "exch_operation",
     "pop_operation",
     "copy_operation",
@@ -98,4 +105,5 @@ __all__ = [
     "if_operation",
     "ifelse_operation",
     "repeat_operation",
+    "for_operation",
 ]
