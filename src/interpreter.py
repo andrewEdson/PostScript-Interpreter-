@@ -4,6 +4,7 @@ import logging
 from src.core.stacks import op_stack, dict_stack, STATIC_SCOPING
 from src.core.exceptions import ParseFailed
 from src.parsers.parsers import process_constants
+from src.core.psdict import PSClosure
 
 
 def lookup_in_dictionary(input):
@@ -13,6 +14,10 @@ def lookup_in_dictionary(input):
             value = current_dict[input]
             if callable(value):
                 value()  # Execute the operation
+            elif isinstance(value, PSClosure):
+                # Execute closure with its defining dictionary
+                for item in value.code_block:
+                    process_input_static(item, value.defining_dict)
             elif isinstance(value, list):
                 for item in value:
                     process_input(item)
@@ -22,21 +27,43 @@ def lookup_in_dictionary(input):
     raise ParseFailed(f"Could not find {input} in any dictionary.")
 
 
-def lookup_in_dictionary_static(input):
-    current_dict = dict_stack[-1]
+def lookup_in_dictionary_static(input, start_dict=None):
+    # Start from the specified dict, or from the top of dict_stack if not specified
+    if start_dict is None:
+        start_dict = dict_stack[-1]
+
+    current_dict = start_dict
     while current_dict is not None:
         if input in current_dict:
             value = current_dict[input]
             if callable(value):
                 value()  # Execute the operation
+            elif isinstance(value, PSClosure):
+                # Execute closure with its defining dictionary
+                for item in value.code_block:
+                    process_input_static(item, value.defining_dict)
             elif isinstance(value, list):
+                # Execute code block using the same starting dictionary for lookups
                 for item in value:
-                    process_input(item)
+                    process_input_static(item, start_dict)
             else:
                 op_stack.append(value)
             return
         current_dict = current_dict.parent
     raise ParseFailed(f"Could not find {input} in any dictionary.")
+
+
+def process_input_static(user_input, start_dict):
+    """Process input with static scoping starting from a specific dictionary"""
+    try:
+        res = process_constants(user_input)
+        op_stack.append(res)
+    except ParseFailed as e:
+        logging.debug(e)
+        try:
+            lookup_in_dictionary_static(user_input, start_dict)
+        except Exception as e:
+            logging.error(f"Could not process input '{user_input}': {e}")
 
 
 def process_input(user_input):

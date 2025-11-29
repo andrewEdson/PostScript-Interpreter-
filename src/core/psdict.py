@@ -1,6 +1,14 @@
 """PostScript Dictionary Object"""
 
 
+class PSClosure:
+    """Wraps a code block with its defining dictionary for static scoping"""
+
+    def __init__(self, code_block, defining_dict):
+        self.code_block = code_block
+        self.defining_dict = defining_dict
+
+
 class PSDict:
     """PostScript Dictionary Object"""
 

@@ -2,7 +2,7 @@
 
 from src.core.stacks import op_stack, dict_stack, STATIC_SCOPING
 from src.core.exceptions import TypeMismatch
-from src.core.psdict import PSDict
+from src.core.psdict import PSDict, PSClosure
 
 
 def def_operation():
@@ -11,6 +11,9 @@ def def_operation():
         key = op_stack.pop()
         if isinstance(key, str) and key.startswith("/"):
             key = key[1:]  # Remove leading '/'
+            # In static scoping, wrap code blocks in a closure
+            if STATIC_SCOPING and isinstance(value, list):
+                value = PSClosure(value, dict_stack[-1])
             dict_stack[-1][key] = value
         else:
             op_stack.append(key)
@@ -32,6 +35,9 @@ def begin_operation():
     if len(op_stack) >= 1:
         dict_obj = op_stack.pop()
         if isinstance(dict_obj, PSDict):
+            # In static scoping, set parent if not already set
+            if STATIC_SCOPING and dict_obj.parent is None:
+                dict_obj.set_parent(dict_stack[-1])
             dict_stack.append(dict_obj)
         else:
             raise TypeMismatch("Operand must be a dictionary for begin operation.")
