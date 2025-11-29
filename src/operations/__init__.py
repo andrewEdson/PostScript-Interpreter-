@@ -48,6 +48,11 @@ from .bit_bool_ops import (
     true_operation,
     false_operation,
 )
+from .flow_ops import (
+    if_operation,
+    ifelse_operation,
+    repeat_operation,
+)
 
 __all__ = [
     "add_operation",
@@ -90,4 +95,7 @@ __all__ = [
     "not_operation",
     "true_operation",
     "false_operation",
+    "if_operation",
+    "ifelse_operation",
+    "repeat_operation",
 ]

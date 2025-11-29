@@ -91,6 +91,9 @@ def register_builtin_operations():
         not_operation,
         true_operation,
         false_operation,
+        if_operation,
+        ifelse_operation,
+        repeat_operation,
         exch_operation,
         pop_operation,
         copy_operation,
@@ -149,3 +152,8 @@ def register_builtin_operations():
     dict_stack[-1]["not"] = not_operation
     dict_stack[-1]["true"] = true_operation
     dict_stack[-1]["false"] = false_operation
+
+    # Flow Control operations
+    dict_stack[-1]["if"] = if_operation
+    dict_stack[-1]["ifelse"] = ifelse_operation
+    dict_stack[-1]["repeat"] = repeat_operation
