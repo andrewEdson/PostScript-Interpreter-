@@ -9,4 +9,4 @@ dict_stack.append(PSDict())
 
 # Scoping configuration
 # Set to True for static (lexical) scoping, False for dynamic scoping (default)
-STATIC_SCOPING = True
+STATIC_SCOPING = False

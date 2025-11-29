@@ -1,0 +1,5 @@
+# Testing dependencies
+pytest>=7.0.0
+
+# Code coverage (optional)
+pytest-cov>=4.0.0
